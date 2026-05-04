@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using HealthInvoice.Core.Common;
+using HealthInvoice.Core.Dtos.Auth;
 using HealthInvoice.Core.Interfaces.Repository.Users;
 using HealthInvoice.Core.Interfaces.Services.Authorization;
-using HealthInvoice.Core.Dtos.Auth;
-using HealthInvoice.Core.Common;
 
 namespace HealthInvoice.Web.Controllers;
 
@@ -19,32 +19,15 @@ public class AuthController(
         [FromBody] LoginRequest loginRequest,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var loginResult = await authorizationService.LoginAsync(
+        var loginResult = await authorizationService.LoginAsync(
             loginRequest.Username,
             loginRequest.Password,
             cancellationToken);
 
-            if (!loginResult.IsSuccess)
-                return Unauthorized();
+        HttpContext.Session.SetString("Username", loginResult.Username);
+        HttpContext.Session.SetString("OrganizationCode", loginResult.OrganizationCode);
 
-            HttpContext.Session.SetString("Username", loginResult.Username);
-            HttpContext.Session.SetString("Surname", loginResult.Surname);
-            HttpContext.Session.SetString("Name", loginResult.Name);
-            HttpContext.Session.SetString("Patronymic", loginResult.Patronymic);
-            HttpContext.Session.SetString("Phone", loginResult.Phone);
-            HttpContext.Session.SetString("OrganizationCode", loginResult.OrganizationCode);
-            HttpContext.Session.SetString("OrganizationName", loginResult.OrganizationName);
-            HttpContext.Session.SetString("SessionStart", loginResult.SessionStart ?? string.Empty);
-            HttpContext.Session.SetString("PersonalDataAccepted", loginResult.IsAcceptedPersonalData.ToString());
-
-            return Ok();
-        }
-        catch (UserIsNotFoundException)
-        {
-            return Unauthorized();
-        }
+        return Ok(loginResult);
     }
 
     [HttpPost("logout")]
@@ -55,36 +38,32 @@ public class AuthController(
     }
 
     [HttpGet("me")]
-    public async Task<IActionResult> GetSessionInformationAsync()
+    public async Task<IActionResult> GetCurrentUserAsync()
     {
         var username = HttpContext.Session.GetString("Username");
-        var surname = HttpContext.Session.GetString("Surname");
-        var name = HttpContext.Session.GetString("Name");
-        var patronymic = HttpContext.Session.GetString("Patronymic");
-        var phone = HttpContext.Session.GetString("Phone");
-        var organizationCode = HttpContext.Session.GetString("OrganizationCode");
-        var organizationName = HttpContext.Session.GetString("OrganizationName");
-        var sessionStart = HttpContext.Session.GetString("SessionStart");
-        var isAcceptedPersonalData = HttpContext.Session.GetString("PersonalDataAccepted");
-
-        if (string.IsNullOrWhiteSpace(username))
+        if (string.IsNullOrEmpty(username))
             return Unauthorized();
 
-        return Ok(
-            new UserInformationResponse(
-                Uid: 0,
-                Username: username,
-                Surname: surname ?? string.Empty,
-                Name: name ?? string.Empty,
-                Patronymic: patronymic ?? string.Empty,
-                Phone: phone ?? string.Empty,
-                OrganizationCode: organizationCode ?? string.Empty,
-                OrganizationName: organizationName ?? string.Empty,
-                SessionStart: sessionStart ?? string.Empty,
-                SessionEnd: sessionStart,
-                LastActivity: DateTime.Now,
-                IsAcceptedPersonalData: bool.Parse(isAcceptedPersonalData ?? string.Empty)
-                ));
+        var dbUser = await userRepository.GetUserByUsernameAsync(username);
+
+        if (dbUser is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new UserInformationResponse(
+            Uid: dbUser.Uid,
+            Username: dbUser.Username,
+            Surname: dbUser.Surname,
+            Name: dbUser.Name,
+            Patronymic: dbUser.Patronymic,
+            Phone: dbUser.Phone,
+            OrganizationCode: dbUser.CodeOrg,
+            OrganizationName: dbUser.OrganiztionName,
+            SessionStart: DateTime.Now.ToString("g"),
+            SessionEnd: DateTime.Now.AddHours(8).ToString("g"),
+            LastActivity: dbUser.LastActivity,
+            IsAcceptedPersonalData: dbUser.PersDataAccepted));
     }
 
     [HttpPost("bulk-register")]

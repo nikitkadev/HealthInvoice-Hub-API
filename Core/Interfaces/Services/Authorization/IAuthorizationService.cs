@@ -20,7 +20,7 @@ public interface IAuthorizationService
     /// - bool IsSuccess: true, если авторизация пройдена.
     /// - string ErrorMessage: описание ошибки (если IsSuccess = false).
     /// </returns>
-    Task<LoginResponse> LoginAsync(
+    Task<LoginResult> LoginAsync(
         string username, 
         string password,
         CancellationToken cancellationToken = default);
