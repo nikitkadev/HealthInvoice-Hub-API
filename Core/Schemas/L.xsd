@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="PERS_LIST">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ZGLV">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="VERSION" type="xs:decimal" />
+              <xs:element name="DATA" type="xs:date" />
+              <xs:element maxOccurs="1" name="FILENAME">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="5"></xs:minLength>
+                    <xs:maxLength value="26"></xs:maxLength>
+                    <xs:pattern value="([a-zA-Z0-9_])*"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element maxOccurs="1" name="FILENAME1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="5"></xs:minLength>
+                    <xs:maxLength value="26"></xs:maxLength>
+                    <xs:pattern value="([a-zA-Z0-9_])*"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element maxOccurs="unbounded" name="PERS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="1" minOccurs ="1" name="ID_PAC">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="36"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs ="0" name="FAM">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="40"></xs:maxLength>
+                    <xs:pattern value="([а-яА-Я-ёЁ. ])*"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs ="0" name="IM">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="40"></xs:maxLength>
+                    <xs:pattern value="([а-яА-Я-ёЁ. ])*"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs ="0" name="OT">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="40"></xs:maxLength>
+                    <xs:pattern value="([а-яА-Я-ёЁ. ])*"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element maxOccurs="1" minOccurs="1" name="W">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="1"></xs:maxLength>
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="2"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element maxOccurs="1" minOccurs="1" name="DR">
+                <xs:simpleType>
+                  <xs:restriction base="xs:date">
+			<xs:minInclusive value="1901-01-01"></xs:minInclusive>
+			<xs:maxInclusive value="2027-01-01"></xs:maxInclusive>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="DOST">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="1"></xs:maxLength>
+                    <xs:pattern value="[1-6]"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>              
+              <xs:element minOccurs="0" name="TEL">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="0"></xs:minLength>
+                    <xs:maxLength value="100"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="FAM_P">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="40"></xs:maxLength>
+                    <xs:pattern value="([а-яА-Я-ёЁ. ])*"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="IM_P">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="40"></xs:maxLength>
+                    <xs:pattern value="([а-яА-Я-ёЁ. ])*"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="OT_P">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="40"></xs:maxLength>
+                    <xs:pattern value="([а-яА-Я-ёЁ. ])*"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>              
+              <xs:element minOccurs="0" name="W_P">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="1"></xs:maxLength>
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="2"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>              
+              <xs:element minOccurs="0" name="DR_P">
+                <xs:simpleType>
+                  <xs:restriction base="xs:date">
+			<xs:minInclusive value="1901-01-01"></xs:minInclusive>
+			<xs:maxInclusive value="2024-01-01"></xs:maxInclusive>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>                
+              <xs:element minOccurs="0" name="DOST_P">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="1"></xs:minLength>
+                    <xs:maxLength value="1"></xs:maxLength>
+                    <xs:pattern value="[1-6]"></xs:pattern>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="MR">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:minLength value="0"></xs:minLength>
+                    <xs:maxLength value="100"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>                
+              <xs:element minOccurs="0" name="DOCTYPE">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="2"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="DOCSER">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="DOCNUM">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="20"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>                
+              <xs:element minOccurs="0" name="DOCDATE">
+                <xs:simpleType>
+                  <xs:restriction base="xs:date">
+			<xs:minInclusive value="1901-01-01"></xs:minInclusive>
+			<xs:maxInclusive value="2027-01-01"></xs:maxInclusive>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>                
+              <xs:element minOccurs="0" name="DOCORG">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="1000"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>                
+              <xs:element minOccurs="0" name="SNILS">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="14"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="OKATOG">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="11"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="OKATOP">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="11"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element minOccurs="0" name="COMENTP">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="250"></xs:maxLength>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

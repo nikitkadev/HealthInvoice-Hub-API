@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="TODO.md"/>
+    <Folder Name="/github"/>
+  </Folder>
+  <Project Path="Core/HealthInvoice.Core.csproj" />
+  <Project Path="Application/HealthInvoice.Application.csproj" />
+  <Project Path="Infrastructure/HealthInvoice.Infrastructure.csproj" />
+  <Project Path="Web/HealthInvoice.Web.csproj" />
+  <Project Path="Tests/HealthInvoice.Tests.csproj" />
+</Solution>

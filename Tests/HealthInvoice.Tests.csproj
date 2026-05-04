@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<RootNamespace>_5_HealthInvoice.Tests</RootNamespace>
+		<AssemblyName>_5_HealthInvoice.Tests</AssemblyName>
+		<TargetFramework>net10.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MSTest" Version="4.0.1" />
+		<ProjectReference Include="..\Core\HealthInvoice.Core.csproj" />
+		<ProjectReference Include="..\Application\HealthInvoice.Application.csproj" />
+		<ProjectReference Include="..\Infrastructure\HealthInvoice.Infrastructure.csproj" />
+		<ProjectReference Include="..\Web\HealthInvoice.Web.csproj" />
+	</ItemGroup>
+
+</Project>

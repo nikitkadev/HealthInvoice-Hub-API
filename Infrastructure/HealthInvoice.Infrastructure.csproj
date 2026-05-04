@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<RootNamespace>HealthInvoice.Infrastructure</RootNamespace>
+		<AssemblyName>HealthInvoice.Infrastructure</AssemblyName>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup Label="Projects">
+		<ProjectReference Include="..\Core\HealthInvoice.Core.csproj" />
+		<ProjectReference Include="..\Application\HealthInvoice.Application.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Label="Frameworks">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.2" />
+		<PackageReference Include="Isopoh.Cryptography.Argon2" Version="2.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
+		<PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
+	</ItemGroup>
+
+</Project>
