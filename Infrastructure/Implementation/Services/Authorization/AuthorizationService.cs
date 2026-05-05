@@ -61,7 +61,7 @@ public class AuthorizationService(
                 IsAcceptedPersonalPolicy: false,
                 Username: username,
                 OrganizationCode: string.Empty,
-                ClientMessage: "Учетной записи с указанным именем пользователя не зарегестирирован в системе! Обратитесь в ТФМОСМ РХ, чтобы получить учетную запись!");
+                ClientMessage: "Пользователь не зарегестрирован в системе!");
         }
     }
 

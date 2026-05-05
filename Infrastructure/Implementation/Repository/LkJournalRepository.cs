@@ -4,10 +4,11 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
+using HealthInvoice.Core.Common;
+using HealthInvoice.Core.Dtos.Service;
+using HealthInvoice.Core.Entities.Journals;
 using HealthInvoice.Infrastructure.Factories;
 using HealthInvoice.Core.Interfaces.Repository.Journals;
-using HealthInvoice.Core.Entities.Journals;
-using HealthInvoice.Core.Common;
 
 namespace HealthInvoice.Infrastructure.Implementation.Repository;
 
@@ -16,6 +17,7 @@ public class LkJournalRepository(
     InvoiceDbContextFactory invoiceDbContextFactory) : ILkJournalRepository
 {
     public async Task<(List<LogicControlJournalEntity>, int)> GetRecordsAsync(
+        LogicControlJournalFilters filters,
         string organizationCode,
         int skip,
         int take,
@@ -30,10 +32,25 @@ public class LkJournalRepository(
         try
         {
             var query = organizationCode == OrganizationConstants.AdminOrgCode
-                ? dbContext.LogicControlJournalRecords.OrderByDescending(order => order.UploadDate)
-                : dbContext.LogicControlJournalRecords
-                    .Where(record => record.CodeMO == organizationCode)
-                    .OrderByDescending(order => order.UploadDate);
+                ? dbContext.LogicControlJournalRecords
+                : dbContext.LogicControlJournalRecords.Where(record => record.CodeMO == organizationCode);
+
+            if(!string.IsNullOrEmpty(filters.SchetNumber))
+            {
+                query = query.Where(x => x.NSchet == filters.SchetNumber);
+            }
+
+            if (!string.IsNullOrEmpty(filters.Username))
+            {
+                query = query.Where(x => x.Uploader == filters.Username);
+            }
+
+            if (!string.IsNullOrEmpty(filters.Filename))
+            {
+                query = query.Where(x => x.FileName == filters.Filename);
+            }
+
+            query = query.OrderByDescending(x => x.UploadDate);
 
             var total = await query.CountAsync(cancellationToken);
 
