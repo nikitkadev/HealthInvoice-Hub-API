@@ -2,6 +2,7 @@
 
 using HealthInvoice.Core.Interfaces.Repository.Journals;
 using HealthInvoice.Core.Common;
+using HealthInvoice.Core.Dtos.Service;
 
 namespace HealthInvoice.Web.Controllers
 {
@@ -13,16 +14,18 @@ namespace HealthInvoice.Web.Controllers
     {
         [HttpGet("lk/fetch")]
         public async Task<IActionResult> FetchJournalRecordsAsync(
-            string organizationCode, 
+            string organizationCode,
             int journalType,
-            CancellationToken cancellationToken,
+            [FromQuery] LogicControlJournalFilters filters,
             int page = 1,
-            int pageSize = 20)
+            int pageSize = 20,
+            CancellationToken cancellationToken = default)
         {
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 20;
 
             var (items, total) = await journalLkRepository.GetRecordsAsync(
+                filters,
                 organizationCode,
                 skip: (page - 1) * pageSize,
                 take: pageSize,

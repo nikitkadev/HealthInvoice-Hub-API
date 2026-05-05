@@ -4,9 +4,11 @@ using HealthInvoice.Core.Common;
 using HealthInvoice.Core.Dtos.Invoices;
 using HealthInvoice.Core.Dtos.Background;
 using HealthInvoice.Core.Interfaces.Managers;
+using HealthInvoice.Core.Interfaces.Repository.Reports;
 using HealthInvoice.Core.Interfaces.Repository.Journals;
 using HealthInvoice.Core.Interfaces.Repository.Invoices;
 using HealthInvoice.Core.Interfaces.Services.Invoices.Publishers;
+using HealthInvoice.Core.Dtos.Database.QueryResults;
 
 namespace HealthInvoice.Web.Controllers;
 
@@ -15,6 +17,7 @@ namespace HealthInvoice.Web.Controllers;
 public class InvoicesController(
     IQueuePublisher<InvoiceDbOperationMessage> dbOperationPublisher,
     IQueuePublisher<InvoiceLogicControlMessage> logicControllingPublisher,
+    IDefectsSummaryQueryRepository defectsSummaryQueryRepository,
     ILkJournalRepository journalRepository,
     IInvoiceRepository invoiceRepository,
     IInvoiceManager invoiceManager) : ControllerBase
@@ -120,5 +123,22 @@ public class InvoicesController(
                 cancellationToken);
 
         return Ok();
+    }
+
+    [HttpGet("{schetUid}/errors")]
+    public async Task<IActionResult> GetMekDefectsAsync(
+        int schetUid,
+        int journalType)
+    {
+        var defects = await defectsSummaryQueryRepository.GetLkDefectsAsync(
+            schetUid, 
+            (JournalType)journalType);
+
+        if(schetUid <= 0)
+        {
+            return BadRequest();
+        }
+
+        return Ok(defects ?? []);
     }
 }
