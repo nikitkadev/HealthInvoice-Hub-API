@@ -139,6 +139,6 @@ public class InvoicesController(
             return BadRequest();
         }
 
-        return Ok(defects ?? []);
+        return Ok(defects.Take(ServiceConstants.MaxDefectsCount) ?? []);
     }
 }
