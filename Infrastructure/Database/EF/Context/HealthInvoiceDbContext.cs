@@ -7,6 +7,9 @@ using HealthInvoice.Core.Entities.Journals;
 using HealthInvoice.Core.Entities.Invoices.Main.H;
 using HealthInvoice.Core.Entities.Invoices.Main.L;
 using HealthInvoice.Core.Dtos.Database.QueryResults;
+using HealthInvoice.Core.Dtos.Rcontrol.Filters;
+using HealthInvoice.Core.Dtos.Rcontrol.Tables;
+using HealthInvoice.Core.Dtos.Rcontrol.Categories;
 
 namespace HealthInvoice.Infrastructure.Database.EF.Context;
 
@@ -23,6 +26,11 @@ public abstract class HealthInvoiceDbContext(
     public DbSet<FormatControlJournalEntity> FormatControlJournalRecords { get; set; }
     public DbSet<FormatControlDefectEntity> FormatControlDefects { get; set; }
     public DbSet<LogicControlDefectDto> LogicControlDefects { get; set; }
+    public DbSet<MedOrganizationDto> MedOrganizations { get; set; }
+    public DbSet<BillingPeriodDto> BillingPeriods { get; set; }
+    public DbSet<InvoiceOverallDto> InvoiceOverallDtos { get; set; }
+    public DbSet<InvoiceSummaryDto> InvoiceSummary { get; set; }
+    public DbSet<FinishedCaseDto> FinishedCases { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

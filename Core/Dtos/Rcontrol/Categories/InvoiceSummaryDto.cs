@@ -14,7 +14,6 @@ public class InvoiceSummaryDto
     /// <summary>Дата загрузки счёта.</summary>
     public DateTime UploadDate { get; set; }
 
-    // ===== Суммы по счёту =====
 
     /// <summary>Предъявлено к оплате (summav).</summary>
     public decimal Summav { get; set; }

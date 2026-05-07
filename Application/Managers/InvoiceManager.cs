@@ -14,8 +14,7 @@ using HealthInvoice.Core.Dtos.Files;
 using HealthInvoice.Core.Entities.Journals;
 using HealthInvoice.Core.Entities.Invoices.Main.H;
 using HealthInvoice.Core.Entities.Invoices.Main.L;
-using HealthInvoice.Core.Dtos.Database;
-using HealthInvoice.Core.Dtos.Database.QueryResults;
+using System.Reflection;
 
 namespace HealthInvoice.Application.Managers;
 
@@ -126,7 +125,7 @@ public class InvoiceManager(
 
                     string savePath = pathService.CreateFilePath(
                         item.ArchiveFilename,
-                        Environment.CurrentDirectory ?? string.Empty,
+                        Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty,
                         [
                             "archive",
                             item.OrganizationCode,

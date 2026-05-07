@@ -1,6 +1,7 @@
 ﻿using System.Threading.Channels;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 using HealthInvoice.Core.Dtos.Reports;
 using HealthInvoice.Core.Dtos.Background;
@@ -43,6 +44,7 @@ using HealthInvoice.Infrastructure.Implementation.Services.Invoices.Publishers;
 
 using HealthInvoice.Web.Shared.Config;
 using HealthInvoice.Core.Dtos.Database.QueryResults;
+using HealthInvoice.Core.Common;
 
 namespace HealthInvoice.Web.Host;
 
@@ -113,6 +115,7 @@ public static class DependencyRegistration
 
                 options.UseSqlServer(
                     connectionString,
+
                     sqlOptions =>
                     {
                         sqlOptions.CommandTimeout(600);

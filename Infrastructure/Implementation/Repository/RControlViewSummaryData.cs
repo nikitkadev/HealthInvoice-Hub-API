@@ -24,8 +24,8 @@ public class RControlViewSummaryData(
 
         try
         {
-            return await dbContext.Database
-                .SqlQueryRaw<MedOrganizationDto>("EXEC sp26_get_mo")
+            return await dbContext.MedOrganizations
+                .FromSqlRaw("EXEC sp26_get_mo")
                 .ToListAsync(cancellationToken);
         }
         catch (DbUpdateException ex)
@@ -69,10 +69,9 @@ public class RControlViewSummaryData(
 
         try
         {
-            return await dbContext.Database
-                 .SqlQueryRaw<BillingPeriodDto>("EXEC sp26_get_period @code_mo", codeMoParam)
+            return await dbContext.BillingPeriods
+                 .FromSqlRaw("EXEC sp26_get_period @code_mo", codeMoParam)
                  .ToListAsync(cancellationToken);
-
         }
         catch (DbUpdateException ex)
         {
@@ -120,8 +119,8 @@ public class RControlViewSummaryData(
             var yearParam = new SqlParameter("year", Year);
             var monthParam = new SqlParameter("month", Month);
 
-            return await dbContext.Database
-                .SqlQueryRaw<InvoiceOverallDto>("EXEC sp26_get_nschet @code_mo, @year, @month", codeMoParam, yearParam, monthParam)
+            return await dbContext.InvoiceOverallDtos
+                .FromSqlRaw("EXEC sp26_get_nschet @code_mo, @year, @month", codeMoParam, yearParam, monthParam)
                 .ToListAsync(cancellationToken);
         }
         catch (DbUpdateException ex)
@@ -161,8 +160,8 @@ public class RControlViewSummaryData(
 
         try
         {
-            var records = await dbContext.Database
-                 .SqlQueryRaw<InvoiceSummaryDto>("EXEC sp26_get_z_slsvod @schet_uid", new SqlParameter("@schet_uid", schetUid))
+            var records = await dbContext.InvoiceSummary
+                 .FromSqlRaw("EXEC sp26_get_z_slsvod @schet_uid", new SqlParameter("@schet_uid", schetUid))
                  .ToListAsync();
 
             return records.FirstOrDefault() ?? new InvoiceSummaryDto();
@@ -204,8 +203,8 @@ public class RControlViewSummaryData(
 
         try
         {
-            return await dbContext.Database
-                .SqlQueryRaw<FinishedCaseDto>("EXEC sp26_get_z_sl_data @schet_uid", new SqlParameter("@schet_uid", schetUid))
+            return await dbContext.FinishedCases
+                .FromSqlRaw("EXEC sp26_get_z_sl_data @schet_uid", new SqlParameter("@schet_uid", schetUid))
                 .ToListAsync();
         }
         catch (DbUpdateException ex)

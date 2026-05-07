@@ -40,4 +40,7 @@ public static class CodeConstants
 {
     /// <summary>Код ошибки дедлока при выполнение хранимой процедуры.</summary>
     public const int SqlExceptionDeadlockCode = 1205;
+
+    /// <summary>Код ошибки таймаута.</summary>
+    public const int SqlExceptionTimeoutCode = 1222;
 }
