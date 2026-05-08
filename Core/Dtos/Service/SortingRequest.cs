@@ -3,5 +3,5 @@
 public class SortingRequest
 {
     public string SortBy { get; set; } = string.Empty;
-    public bool IsDescending { get; set; } 
+    public string Direction { get; set; } = string.Empty; 
 }

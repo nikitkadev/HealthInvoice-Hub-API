@@ -213,29 +213,43 @@ public class LkJournalRepository(
             throw new Exception();
         }
 
+        bool isDescending = sorting.Direction == "desc";
+
         return query = sorting.SortBy.ToLower() switch
         {
-            "uploader" => sorting.IsDescending
+            "uploade_date" => isDescending
+               ? query.OrderByDescending(x => x.UploadDate)
+               : query.OrderBy(x => x.UploadDate),
+
+            "uploader" => isDescending
                ? query.OrderByDescending(x => x.Uploader)
                : query.OrderBy(x => x.Uploader),
 
-            "filename" => sorting.IsDescending
+            "filename" => isDescending
                 ? query.OrderByDescending(x => x.FileName)
                 : query.OrderBy(x => x.FileName),
 
-            "organization_code" => sorting.IsDescending
+            "organization_code" => isDescending
                 ? query.OrderByDescending(x => x.CodeMO)
                 : query.OrderBy(x => x.CodeMO),
 
-            "nschet" => sorting.IsDescending
+            "nschet" => isDescending
                 ? query.OrderByDescending(x => x.NSchet)
                 : query.OrderBy(x => x.NSchet),
 
-            "dschet" => sorting.IsDescending
+            "dschet" => isDescending
                 ? query.OrderByDescending(x => x.DSchet)
                 : query.OrderBy(x => x.DSchet),
 
-            "status_mek" => sorting.IsDescending
+            "count_sdz" => isDescending
+                ? query.OrderByDescending(x => x.CountSdZ)
+                : query.OrderBy(x => x.CountSdZ),
+
+            "count_error" => isDescending
+                ? query.OrderByDescending(x => x.CountError)
+                : query.OrderBy(x => x.CountError),
+
+            "status_mek" => isDescending
                 ? query.OrderByDescending(x => x.Status)
                 : query.OrderBy(x => x.Status),
 
