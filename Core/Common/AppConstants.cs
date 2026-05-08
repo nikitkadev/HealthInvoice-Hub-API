@@ -1,4 +1,6 @@
-﻿namespace HealthInvoice.Core.Common;
+﻿using System.Dynamic;
+
+namespace HealthInvoice.Core.Common;
 
 /// <summary>Класс, содержащий константы под параметры организаций.</summary>
 public static class OrganizationConstants
@@ -28,6 +30,9 @@ public static class ServiceConstants
 {
     /// <summary>Количество повторных вызывов процессов.</summary>
     public const int MaxRetries = 3;
+
+    /// <summary>Максимальное количество отображаемых ошибок ФЛК в браузере</summary>
+    public const int MaxDefectsCount = 500;
 }
 
 /// <summary>Класс, содержащий константы кодов различных сущностей (код ошибок и прочее)</summary>
@@ -35,4 +40,7 @@ public static class CodeConstants
 {
     /// <summary>Код ошибки дедлока при выполнение хранимой процедуры.</summary>
     public const int SqlExceptionDeadlockCode = 1205;
+
+    /// <summary>Код ошибки таймаута.</summary>
+    public const int SqlExceptionTimeoutCode = 1222;
 }

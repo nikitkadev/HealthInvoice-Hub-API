@@ -4,10 +4,11 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
+using HealthInvoice.Core.Common;
+using HealthInvoice.Core.Dtos.Service;
+using HealthInvoice.Core.Entities.Journals;
 using HealthInvoice.Infrastructure.Factories;
 using HealthInvoice.Core.Interfaces.Repository.Journals;
-using HealthInvoice.Core.Entities.Journals;
-using HealthInvoice.Core.Common;
 
 namespace HealthInvoice.Infrastructure.Implementation.Repository;
 
@@ -16,6 +17,8 @@ public class LkJournalRepository(
     InvoiceDbContextFactory invoiceDbContextFactory) : ILkJournalRepository
 {
     public async Task<(List<LogicControlJournalEntity>, int)> GetRecordsAsync(
+        SortingRequest sorting,
+        LogicControlJournalFilters filters,
         string organizationCode,
         int skip,
         int take,
@@ -30,13 +33,13 @@ public class LkJournalRepository(
         try
         {
             var query = organizationCode == OrganizationConstants.AdminOrgCode
-                ? dbContext.LogicControlJournalRecords.OrderByDescending(order => order.UploadDate)
-                : dbContext.LogicControlJournalRecords
-                    .Where(record => record.CodeMO == organizationCode)
-                    .OrderByDescending(order => order.UploadDate);
+                ? dbContext.LogicControlJournalRecords
+                : dbContext.LogicControlJournalRecords.Where(record => record.CodeMO == organizationCode);
+
+            query = FilterQuery(query, filters);
+            query = SortingQuery(query, sorting);
 
             var total = await query.CountAsync(cancellationToken);
-
             var items = await query
                 .AsNoTracking()
                 .Skip(skip)
@@ -121,8 +124,8 @@ public class LkJournalRepository(
     }
 
     public async Task<short?> GetStatusByFilenameAsync(
-        string filename, 
-        JournalType journalType, 
+        string filename,
+        JournalType journalType,
         CancellationToken cancellationToken = default)
     {
         var dbContext = invoiceDbContextFactory.Create(journalType);
@@ -148,7 +151,7 @@ public class LkJournalRepository(
             await dbContext.Database.ExecuteSqlRawAsync(
                 "EXEC sp26_filenamezip_check @pRetCode OUTPUT, @pFileZip",
                 [
-                    archiveFilenameParam, 
+                    archiveFilenameParam,
                     statusParam
                 ],
                 cancellationToken: cancellationToken);
@@ -175,5 +178,68 @@ public class LkJournalRepository(
 
             throw;
         }
+    }
+
+    private static IQueryable<LogicControlJournalEntity> FilterQuery(IQueryable<LogicControlJournalEntity>? query, LogicControlJournalFilters filters)
+    {
+        if (query is null)
+        {
+            throw new Exception();
+        }
+
+        if (!string.IsNullOrEmpty(filters.SchetNumber))
+        {
+            query = query.Where(x => x.NSchet == filters.SchetNumber);
+        }
+
+        if (!string.IsNullOrEmpty(filters.Username))
+        {
+            query = query.Where(x => x.Uploader == filters.Username);
+        }
+
+        if (!string.IsNullOrEmpty(filters.Filename))
+        {
+            query = query.Where(x => x.FileName == filters.Filename);
+        }
+
+        return query;
+    }
+    private static IQueryable<LogicControlJournalEntity> SortingQuery(
+        IQueryable<LogicControlJournalEntity>? query,
+        SortingRequest sorting)
+    {
+        if (query is null)
+        {
+            throw new Exception();
+        }
+
+        return query = sorting.SortBy.ToLower() switch
+        {
+            "uploader" => sorting.IsDescending
+               ? query.OrderByDescending(x => x.Uploader)
+               : query.OrderBy(x => x.Uploader),
+
+            "filename" => sorting.IsDescending
+                ? query.OrderByDescending(x => x.FileName)
+                : query.OrderBy(x => x.FileName),
+
+            "organization_code" => sorting.IsDescending
+                ? query.OrderByDescending(x => x.CodeMO)
+                : query.OrderBy(x => x.CodeMO),
+
+            "nschet" => sorting.IsDescending
+                ? query.OrderByDescending(x => x.NSchet)
+                : query.OrderBy(x => x.NSchet),
+
+            "dschet" => sorting.IsDescending
+                ? query.OrderByDescending(x => x.DSchet)
+                : query.OrderBy(x => x.DSchet),
+
+            "status_mek" => sorting.IsDescending
+                ? query.OrderByDescending(x => x.Status)
+                : query.OrderBy(x => x.Status),
+
+            _ => query.OrderByDescending(x => x.UploadDate)
+        };
     }
 }

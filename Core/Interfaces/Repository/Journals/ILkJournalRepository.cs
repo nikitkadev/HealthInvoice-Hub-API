@@ -1,4 +1,5 @@
 ﻿using HealthInvoice.Core.Common;
+using HealthInvoice.Core.Dtos.Service;
 using HealthInvoice.Core.Entities.Journals;
 
 namespace HealthInvoice.Core.Interfaces.Repository.Journals;
@@ -12,11 +13,15 @@ public interface ILkJournalRepository
     /// <summary>
     /// Получить записи из журнала по коду организации
     /// </summary>
+    /// <param name="sorting">Модель с параметрами сортировки</param>
+    /// <param name="filters">Модель примененных фильтров</param>
     /// <param name="organizationCode">Код организации</param>
     /// <param name="journalType">Тип выбранного журнала</param>
     /// <param name="cancellationToken ">Токен отмены</param>
     /// <returns>Список записей из журнала по указанному коду организации</returns>
     Task<(List<LogicControlJournalEntity>, int)> GetRecordsAsync(
+        SortingRequest sorting,
+        LogicControlJournalFilters filters,
         string organizationCode,
         int skip, 
         int take,

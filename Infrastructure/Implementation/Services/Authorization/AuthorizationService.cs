@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 using HealthInvoice.Core.Common;
 using HealthInvoice.Core.Dtos.Auth;
+using HealthInvoice.Core.Entities.Domain;
 using HealthInvoice.Core.Interfaces.Repository.Users;
 using HealthInvoice.Core.Interfaces.Services.Authorization;
-using HealthInvoice.Core.Entities.Domain;
 
 namespace HealthInvoice.Infrastructure.Implementation.Services.Authorization;
 
@@ -14,7 +14,7 @@ public class AuthorizationService(
     IPasswordHasherService passwordHasherService,
     IUserRepository userRepository) : IAuthorizationService
 {
-    public async Task<LoginResponse> LoginAsync(
+    public async Task<LoginResult> LoginAsync(
         string username,
         string password,
         CancellationToken cancellationToken = default)
@@ -23,32 +23,22 @@ public class AuthorizationService(
         {
             var user = await userRepository
                 .GetUserByUsernameAsync(username, cancellationToken)
-                ?? throw new UserIsNotFoundException(username);
+                    ?? throw new UserIsNotFoundException(username);
 
             if (!passwordHasherService.VerifyPassword(password, user.PasswordHash))
-                return new LoginResponse(
+                return new LoginResult(
                     IsSuccess: false,
-                    ErrorMessage: "Введен неверный пароль",
+                    IsAcceptedPersonalPolicy: user.PersDataAccepted,
                     Username: username,
-                    Surname: user.Surname,
-                    Name: user.Name,
-                    Patronymic: user.Patronymic,
-                    Phone: user.Phone,
-                    OrganizationName: user.OrganiztionName,
                     OrganizationCode: user.CodeOrg,
-                    IsAcceptedPersonalData: user.PersDataAccepted);
+                    ClientMessage: "Неверный логин или пароль!");
 
-            return new LoginResponse(
+            return new LoginResult(
                 IsSuccess: true,
-                ErrorMessage: string.Empty,
+                IsAcceptedPersonalPolicy: user.PersDataAccepted,
                 Username: username,
-                Surname: user.Surname,
-                Name: user.Name,
-                Patronymic: user.Patronymic,
-                Phone: user.Phone,
-                OrganizationName: await userRepository.GetUserOrganizationName(user.CodeOrg),
                 OrganizationCode: user.CodeOrg,
-                IsAcceptedPersonalData: user.PersDataAccepted); 
+                ClientMessage: "Добро пожаловать в HealthInvoice Hub!");
         }
         catch (OperationCanceledException ex)
         {
@@ -59,10 +49,24 @@ public class AuthorizationService(
 
             throw;
         }
+        catch (UserIsNotFoundException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Указанный пользователь {username} не зарегестрирован в системе!",
+                username);
+
+            return new LoginResult(
+                IsSuccess: false,
+                IsAcceptedPersonalPolicy: false,
+                Username: username,
+                OrganizationCode: string.Empty,
+                ClientMessage: "Пользователь не зарегестрирован в системе!");
+        }
     }
 
     public async Task RegisterUserAsync(
-        RegisterUsersRequest request, 
+        RegisterUsersRequest request,
         CancellationToken cancellationToken = default)
     {
         try

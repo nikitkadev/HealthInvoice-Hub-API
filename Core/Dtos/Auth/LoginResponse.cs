@@ -1,31 +1,15 @@
 ﻿namespace HealthInvoice.Core.Dtos.Auth;
 
-/// <summary>
-/// Результат авторизации пользователя.
-/// </summary>
+/// <summary>Результат авторизации пользователя.</summary>
 /// <param name="IsSuccess">Успешность авторизации.</param>
-/// <param name="ErrorMessage">Сообщение об ошибке (если есть).</param>
+/// <param name="IsAcceptedPersonalPolicy">Флаг согласия на обработку персональных данных.</param>
 /// <param name="Username">Имя пользователя.</param>
-/// <param name="Surname">Фамилия.</param>
-/// <param name="Name">Имя.</param>
-/// <param name="Patronymic">Отчество.</param>
-/// <param name="Phone">Телефон.</param>
-/// <param name="OrganizationName">Название организации.</param>
 /// <param name="OrganizationCode">Код организации.</param>
-/// <param name="IsAcceptedPersonalData">Согласие на обработку ПД.</param>
-public record LoginResponse(
+/// <param name="ClientMessage">Сообщение клиенту.</param>
+public record LoginResult(
     bool IsSuccess,
-    string? ErrorMessage,
+    bool IsAcceptedPersonalPolicy,
     string Username,
-    string Surname,
-    string Name,
-    string Patronymic,
-    string Phone,
-    string OrganizationName,
     string OrganizationCode,
-    bool IsAcceptedPersonalData
-)
-{
-    /// <summary>Начало сессии (только при успешной авторизации).</summary>
-    public string? SessionStart => IsSuccess ? DateTime.UtcNow.ToString("g") : null;
-}
+    string ClientMessage
+);

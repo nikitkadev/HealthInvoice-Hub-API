@@ -1,16 +1,15 @@
-﻿using System.Data;
-
+﻿using HealthInvoice.Core.Common;
+using HealthInvoice.Core.Dtos.Invoices;
+using HealthInvoice.Core.Entities.Invoices.Main.H;
+using HealthInvoice.Core.Entities.Invoices.Main.L;
+using HealthInvoice.Core.Entities.Journals;
+using HealthInvoice.Core.Interfaces.Repository.Invoices;
+using HealthInvoice.Infrastructure.Database.EF.Context;
+using HealthInvoice.Infrastructure.Factories;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-
-using HealthInvoice.Core.Common;
-using HealthInvoice.Core.Dtos.Invoices;
-using HealthInvoice.Core.Entities.Journals;
-using HealthInvoice.Infrastructure.Factories;
-using HealthInvoice.Core.Entities.Invoices.Main.H;
-using HealthInvoice.Core.Entities.Invoices.Main.L;
-using HealthInvoice.Core.Interfaces.Repository.Invoices;
+using System.Data;
 
 namespace HealthInvoice.Infrastructure.Implementation.Repository;
 
@@ -37,7 +36,7 @@ public class InvoiceRepository(
             insertInvoiceDbContext.ChangeTracker.Clear();
 
             _schetUid = models.Item1.Schet!.Uid;
-            
+
             await invoiceTransaction.CommitAsync(cancellationToken);
         }
         catch (Exception ex)
@@ -73,7 +72,7 @@ public class InvoiceRepository(
                         DSchet = models.Item1.Schet.Dschet,
                         Status = 2
 
-                    }, 
+                    },
                     cancellationToken);
 
             await updateJournalFlkDbContext.SaveChangesAsync(cancellationToken);
@@ -133,7 +132,7 @@ public class InvoiceRepository(
             logger.LogWarning(
                 "Выполнение хранимой процедуры прервано по токену для журнала {JournalType}",
                 journalType);
-            
+
             await removingTransaction.RollbackAsync(cancellationToken);
 
             throw;
@@ -146,9 +145,9 @@ public class InvoiceRepository(
                 journalType,
                 ex.GetType().Name,
                 ex.Message);
-            
+
             await removingTransaction.RollbackAsync(cancellationToken);
-            
+
             throw;
         }
     }
@@ -159,82 +158,88 @@ public class InvoiceRepository(
         JournalType journalType,
         CancellationToken cancellationToken = default)
     {
-        if (models.Item1 == null || models.Item2 == null)
-            throw new ArgumentNullException(
-                models.Item1 == null ? nameof(models.Item1) : nameof(models.Item2),
-                "Модели для вставки не могут быть null");
+        int _retryCount = 0;
 
-        var dbContext = dbContextFactory.Create(journalType);
-
-        await using var rewriteTransaction = dbContext.Database.BeginTransaction();
-
-        try
+        while (_retryCount < ServiceConstants.MaxRetries)
         {
-            await dbContext.Database.ExecuteSqlRawAsync(
-                 "EXEC [dbo].[sp26_delbyschetuid] @pSchet_uid",
-                 new SqlParameter("@pSchet_uid", SqlDbType.Int)
-                 {
-                     Value = schetUid
-                 });
+            if (models.Item1 == null || models.Item2 == null)
+                throw new ArgumentNullException(
+                    models.Item1 == null ? nameof(models.Item1) : nameof(models.Item2),
+                    "Модели для вставки не могут быть null");
 
-            await dbContext.ZlLists.AddAsync(models.Item1, cancellationToken);
-            await dbContext.PersLists.AddAsync(models.Item2, cancellationToken);
+            await using var dbContext = dbContextFactory.Create(journalType);
+            await using var rewriteTransaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await dbContext.Database.ExecuteSqlRawAsync(
+                     "EXEC [dbo].[sp26_delbyschetuid] @pSchet_uid",
+                     new SqlParameter("@pSchet_uid", SqlDbType.Int)
+                     {
+                         Value = schetUid
+                     });
 
-            await dbContext.LogicControlJournalRecords.AddAsync(
-                new LogicControlJournalEntity
+                await dbContext.ZlLists.AddAsync(models.Item1, cancellationToken);
+                await dbContext.PersLists.AddAsync(models.Item2, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                await dbContext.LogicControlJournalRecords.AddAsync(
+                    new LogicControlJournalEntity
+                    {
+                        CodeMO = models.Item1.Schet!.CodeMO,
+                        CountError = 0,
+                        CountSdZ = 0,
+                        FileName = models.Item1.Zglv!.FileName!,
+                        SchetUid = models.Item1.Schet.Uid,
+                        UploadDate = models.Item1.UploadDate,
+                        Uploader = models.Item1.Uploader ?? string.Empty,
+                        NSchet = models.Item1.Schet.Nschet,
+                        DSchet = models.Item1.Schet.Dschet,
+                        Status = 2
+
+                    }, cancellationToken);
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await rewriteTransaction.CommitAsync(cancellationToken);
+
+                return;
+            }
+            catch (SqlException ex) when (ex.Number == CodeConstants.SqlExceptionDeadlockCode || ex.Number == CodeConstants.SqlExceptionTimeoutCode)
+            {
+                await rewriteTransaction.RollbackAsync(cancellationToken);
+
+                _retryCount++;
+
+                logger.LogError(
+                    ex,
+                    "[HealthInvoice Hub] Дедлок при перезаписи счета {SchetUid}. Попытка {RetryCount}/{MaxRetries}",
+                    schetUid,
+                    _retryCount,
+                    ServiceConstants.MaxRetries);
+
+                if (_retryCount >= ServiceConstants.MaxRetries)
                 {
-                    CodeMO = models.Item1.Schet!.CodeMO,
-                    CountError = 0,
-                    CountSdZ = 0,
-                    FileName = models.Item1.Zglv!.FileName!,
-                    SchetUid = models.Item1.Schet.Uid,
-                    UploadDate = models.Item1.UploadDate,
-                    Uploader = models.Item1.Uploader ?? string.Empty,
-                    NSchet = models.Item1.Schet.Nschet,
-                    DSchet = models.Item1.Schet.Dschet,
-                    Status = 2
+                    logger.LogError(
+                        "[HealthInvoice Hub] Не удалось перезаписать счёт {SchetUid} после {MaxRetries} попыток",
+                        schetUid,
+                        ServiceConstants.MaxRetries);
 
-                }, cancellationToken);
+                    throw;
+                }
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await rewriteTransaction.CommitAsync(cancellationToken);
-        }
-        catch (DbUpdateException ex)
-        {
-            await rewriteTransaction.RollbackAsync(cancellationToken);
-            logger.LogError(
-                ex,
-                "Ошибка БД при перезаписи счёта с SchetUid = {SchetUid} для журнала {JournalType}: {Message}",
-                schetUid,
-                journalType,
-                ex.Message);
+                await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, _retryCount - 1) + Random.Shared.NextDouble()), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await rewriteTransaction.RollbackAsync(cancellationToken);
+                await dbContext.DisposeAsync();
 
-            throw;
-        }
-        catch (OperationCanceledException)
-        {
-            await rewriteTransaction.RollbackAsync(cancellationToken);
-            logger.LogWarning(
-                "Операция перезаписи счёта с SchetUid = {SchetUid} прервана по токену для журнала {JournalType}",
-                schetUid,
-                journalType);
+                logger.LogError(ex,
+                    "[HealthInvoice Hub] Критическая ошибка при перезаписи счёта {SchetUid}",
+                    schetUid);
 
-            throw;
-        }
-        catch (Exception ex)
-        {
-            await rewriteTransaction.RollbackAsync(cancellationToken);
-            logger.LogError(
-                ex,
-                "Критическая ошибка при перезаписи счёта с SchetUid = {SchetUid} для журнала {JournalType}: {ErrorType} — {Message}",
-                schetUid,
-                journalType,
-                ex.GetType().Name,
-                ex.Message);
-
-            throw;
+                throw;
+            }
         }
     }
 

@@ -31,7 +31,7 @@ public class AdminController(
     }
 
     [HttpGet("rcontrol/invoices_shortly")]
-    public async Task<IActionResult> GetRecordsForTable_3Async(
+    public async Task<IActionResult> GetInvoicesShortlyRecordsAsync(
         string codeMo, 
         int Year, 
         byte Month, 
