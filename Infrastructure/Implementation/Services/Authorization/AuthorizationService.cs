@@ -38,7 +38,7 @@ public class AuthorizationService(
                 IsAcceptedPersonalPolicy: user.PersDataAccepted,
                 Username: username,
                 OrganizationCode: user.CodeOrg,
-                ClientMessage: "Добро пожаловать в HealthInvoice Hub!");
+                ClientMessage: "Успешный вход!");
         }
         catch (OperationCanceledException ex)
         {

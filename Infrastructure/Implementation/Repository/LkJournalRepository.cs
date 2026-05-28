@@ -18,7 +18,7 @@ public class LkJournalRepository(
 {
     public async Task<(List<LogicControlJournalEntity>, int)> GetRecordsAsync(
         SortingRequest sorting,
-        LogicControlJournalFilters filters,
+        JournalFilters filters,
         string organizationCode,
         int skip,
         int take,
@@ -180,30 +180,29 @@ public class LkJournalRepository(
         }
     }
 
-    private static IQueryable<LogicControlJournalEntity> FilterQuery(IQueryable<LogicControlJournalEntity>? query, LogicControlJournalFilters filters)
+    private static IQueryable<LogicControlJournalEntity> FilterQuery(
+        IQueryable<LogicControlJournalEntity>? query,
+        JournalFilters filters)
     {
         if (query is null)
         {
             throw new Exception();
         }
 
-        if (!string.IsNullOrEmpty(filters.SchetNumber))
+        if (string.IsNullOrEmpty(filters.GlobalFilterTarget))
         {
-            query = query.Where(x => x.NSchet == filters.SchetNumber);
+            return query;
         }
 
-        if (!string.IsNullOrEmpty(filters.Username))
-        {
-            query = query.Where(x => x.Uploader == filters.Username);
-        }
+        var targetFilter = filters.GlobalFilterTarget;
 
-        if (!string.IsNullOrEmpty(filters.Filename))
-        {
-            query = query.Where(x => x.FileName == filters.Filename);
-        }
-
-        return query;
+        return query.Where(x =>
+            x.CodeMO == targetFilter ||
+            x.NSchet == targetFilter ||
+            x.FileName == targetFilter ||
+            x.Uploader == targetFilter);   
     }
+
     private static IQueryable<LogicControlJournalEntity> SortingQuery(
         IQueryable<LogicControlJournalEntity>? query,
         SortingRequest sorting)

@@ -14,16 +14,23 @@ namespace HealthInvoice.Web.Controllers
     {
         [HttpGet("lk/fetch")]
         public async Task<IActionResult> FetchJournalRecordsAsync(
+            [FromQuery] SortingRequest sorting,
+            [FromQuery] JournalFilters filters,
             string organizationCode,
             int journalType,
-            [FromQuery] SortingRequest sorting,
-            [FromQuery] LogicControlJournalFilters filters,
             int page = 1,
             int pageSize = 20,
             CancellationToken cancellationToken = default)
         {
-            if (page < 1) page = 1;
-            if (pageSize < 1 || pageSize > 100) pageSize = 20;
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            if (pageSize < 1 || pageSize > 100)
+            {
+                pageSize = 20;
+            }
 
             var (items, total) = await journalLkRepository.GetRecordsAsync(
                 sorting,
@@ -48,9 +55,10 @@ namespace HealthInvoice.Web.Controllers
         public async Task<IActionResult> FetchFkJournalRecordsAsync(
             string organizationCode,
             int journalType,
-            CancellationToken cancellationToken,
+            [FromQuery] JournalFilters filters,
             int page = 1,
-            int pageSize = 20)
+            int pageSize = 20,
+            CancellationToken cancellationToken = default)
         {
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 20;
@@ -59,6 +67,7 @@ namespace HealthInvoice.Web.Controllers
                 organizationCode,
                 skip: (page - 1) * pageSize,
                 take: pageSize,
+                filters: filters,
                 (JournalType)journalType,
                 cancellationToken: cancellationToken);
 

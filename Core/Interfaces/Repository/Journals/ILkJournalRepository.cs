@@ -21,7 +21,7 @@ public interface ILkJournalRepository
     /// <returns>Список записей из журнала по указанному коду организации</returns>
     Task<(List<LogicControlJournalEntity>, int)> GetRecordsAsync(
         SortingRequest sorting,
-        LogicControlJournalFilters filters,
+        JournalFilters filters,
         string organizationCode,
         int skip, 
         int take,
