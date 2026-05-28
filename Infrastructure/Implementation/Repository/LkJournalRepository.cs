@@ -18,7 +18,7 @@ public class LkJournalRepository(
 {
     public async Task<(List<LogicControlJournalEntity>, int)> GetRecordsAsync(
         SortingRequest sorting,
-        LogicControlJournalFilters filters,
+        JournalFilters filters,
         string organizationCode,
         int skip,
         int take,
@@ -180,30 +180,29 @@ public class LkJournalRepository(
         }
     }
 
-    private static IQueryable<LogicControlJournalEntity> FilterQuery(IQueryable<LogicControlJournalEntity>? query, LogicControlJournalFilters filters)
+    private static IQueryable<LogicControlJournalEntity> FilterQuery(
+        IQueryable<LogicControlJournalEntity>? query,
+        JournalFilters filters)
     {
         if (query is null)
         {
             throw new Exception();
         }
 
-        if (!string.IsNullOrEmpty(filters.SchetNumber))
+        if (string.IsNullOrEmpty(filters.GlobalFilterTarget))
         {
-            query = query.Where(x => x.NSchet == filters.SchetNumber);
+            return query;
         }
 
-        if (!string.IsNullOrEmpty(filters.Username))
-        {
-            query = query.Where(x => x.Uploader == filters.Username);
-        }
+        var targetFilter = filters.GlobalFilterTarget;
 
-        if (!string.IsNullOrEmpty(filters.Filename))
-        {
-            query = query.Where(x => x.FileName == filters.Filename);
-        }
-
-        return query;
+        return query.Where(x =>
+            x.CodeMO == targetFilter ||
+            x.NSchet == targetFilter ||
+            x.FileName == targetFilter ||
+            x.Uploader == targetFilter);   
     }
+
     private static IQueryable<LogicControlJournalEntity> SortingQuery(
         IQueryable<LogicControlJournalEntity>? query,
         SortingRequest sorting)
@@ -213,29 +212,43 @@ public class LkJournalRepository(
             throw new Exception();
         }
 
+        bool isDescending = sorting.Direction == "desc";
+
         return query = sorting.SortBy.ToLower() switch
         {
-            "uploader" => sorting.IsDescending
+            "uploade_date" => isDescending
+               ? query.OrderByDescending(x => x.UploadDate)
+               : query.OrderBy(x => x.UploadDate),
+
+            "uploader" => isDescending
                ? query.OrderByDescending(x => x.Uploader)
                : query.OrderBy(x => x.Uploader),
 
-            "filename" => sorting.IsDescending
+            "filename" => isDescending
                 ? query.OrderByDescending(x => x.FileName)
                 : query.OrderBy(x => x.FileName),
 
-            "organization_code" => sorting.IsDescending
+            "organization_code" => isDescending
                 ? query.OrderByDescending(x => x.CodeMO)
                 : query.OrderBy(x => x.CodeMO),
 
-            "nschet" => sorting.IsDescending
+            "nschet" => isDescending
                 ? query.OrderByDescending(x => x.NSchet)
                 : query.OrderBy(x => x.NSchet),
 
-            "dschet" => sorting.IsDescending
+            "dschet" => isDescending
                 ? query.OrderByDescending(x => x.DSchet)
                 : query.OrderBy(x => x.DSchet),
 
-            "status_mek" => sorting.IsDescending
+            "count_sdz" => isDescending
+                ? query.OrderByDescending(x => x.CountSdZ)
+                : query.OrderBy(x => x.CountSdZ),
+
+            "count_error" => isDescending
+                ? query.OrderByDescending(x => x.CountError)
+                : query.OrderBy(x => x.CountError),
+
+            "status_mek" => isDescending
                 ? query.OrderByDescending(x => x.Status)
                 : query.OrderBy(x => x.Status),
 

@@ -1,4 +1,5 @@
 ﻿using HealthInvoice.Core.Common;
+using HealthInvoice.Core.Dtos.Service;
 using HealthInvoice.Core.Entities.Journals;
 
 namespace HealthInvoice.Core.Interfaces.Repository.Journals;
@@ -27,6 +28,7 @@ public interface IFkJournalRepository
         string organizationCode,
         int skip,
         int take,
+        JournalFilters filters,
         JournalType journalType = JournalType.None,
         CancellationToken cancellationToken = default);
 }

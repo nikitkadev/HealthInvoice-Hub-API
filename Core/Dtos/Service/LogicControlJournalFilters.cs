@@ -1,10 +1,6 @@
 ﻿namespace HealthInvoice.Core.Dtos.Service;
 
-public class LogicControlJournalFilters
+public class JournalFilters
 {
-    public string? SchetNumber { get; set; }
-    public string? Username { get; set; }
-    public string? Filename { get; set; }
-    public string? DateFrom { get; set; }
-    public string? DateTo { get; set; }
+    public string? GlobalFilterTarget { get; set; }
 }

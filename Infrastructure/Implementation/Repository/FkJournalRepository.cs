@@ -5,6 +5,7 @@ using HealthInvoice.Core.Common;
 using HealthInvoice.Core.Entities.Journals;
 using HealthInvoice.Infrastructure.Factories;
 using HealthInvoice.Core.Interfaces.Repository.Journals;
+using HealthInvoice.Core.Dtos.Service;
 
 namespace HealthInvoice.Infrastructure.Implementation.Repository;
 
@@ -72,6 +73,7 @@ public class FkJournalRepository(
         string organizationCode,
         int skip,
         int take,
+        JournalFilters filters,
         JournalType journalType,
         CancellationToken cancellationToken = default)
     {
@@ -83,10 +85,13 @@ public class FkJournalRepository(
         try
         {
             var query = organizationCode == OrganizationConstants.AdminOrgCode
-                ? dbContext.FormatControlJournalRecords.OrderByDescending(order => order.UploadDate)
+                ? dbContext.FormatControlJournalRecords
                 : dbContext.FormatControlJournalRecords
-                    .Where(record => record.OrganizationCode == organizationCode)
-                    .OrderByDescending(order => order.UploadDate);
+                    .Where(record => record.OrganizationCode == organizationCode);
+
+            query = FilterQuery(query, filters);
+
+            query = query.OrderByDescending(x => x.UploadDate);
 
             var total = await query.CountAsync(cancellationToken);
             var items = await query
@@ -122,5 +127,26 @@ public class FkJournalRepository(
 
             throw;
         }
+    }
+
+    private static IQueryable<FormatControlJournalEntity> FilterQuery(
+        IQueryable<FormatControlJournalEntity>? query,
+        JournalFilters filters)
+    {
+        if (query is null)
+        {
+            throw new Exception();
+        }
+
+        if (string.IsNullOrEmpty(filters.GlobalFilterTarget))
+        {
+            return query;
+        }
+
+        var targetFilter = filters.GlobalFilterTarget;
+
+        return query.Where(x =>
+            x.SourceArchiveFilename == targetFilter ||
+            x.OrganizationCode == targetFilter);
     }
 }
