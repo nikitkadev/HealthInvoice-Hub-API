@@ -40,7 +40,7 @@ public interface IAuthorizationService
     /// </summary>
     /// <param name="request">Модель запроса, содержащая данные регистрируемых пользователей</param>
     /// <param name="cancellationToken">Токен отмены асинхронной операции</param>
-    Task RegisterUserAsync(
+    Task RegisteUserAsync(
         RegisterUsersRequest request,
         CancellationToken cancellationToken = default);
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using HealthInvoice.Core.Common;
 using HealthInvoice.Core.Dtos.Auth;
 using HealthInvoice.Core.Interfaces.Repository.Users;
 using HealthInvoice.Core.Interfaces.Services.Authorization;
@@ -11,8 +10,7 @@ namespace HealthInvoice.Web.Controllers;
 [Route("healthinvoice/api/auth")]
 public class AuthController(
     IAuthorizationService authorizationService,
-    IUserRepository userRepository,
-    IUsersDeserializer usersDeserializer) : ControllerBase
+    IUserRepository userRepository) : ControllerBase
 {
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync(
@@ -34,6 +32,23 @@ public class AuthController(
     public async Task<IActionResult> LogoutAsync()
     {
         HttpContext.Session.Clear();
+        return Ok();
+    }
+
+    [HttpPost("registe")]
+    public async Task<IActionResult> RegisteUserAsync(
+        [FromBody] RegisterUsersRequest request,
+        CancellationToken cancellationToken)
+    {
+        if(request is null)
+        {
+            return BadRequest();
+        }
+
+        await authorizationService.RegisteUserAsync(
+            request: request,
+            cancellationToken: cancellationToken);
+
         return Ok();
     }
 
@@ -64,31 +79,6 @@ public class AuthController(
             SessionEnd: DateTime.Now.AddHours(8).ToString("g"),
             LastActivity: dbUser.LastActivity,
             IsAcceptedPersonalData: dbUser.PersDataAccepted));
-    }
-
-    [HttpPost("bulk-register")]
-    public async Task<IActionResult> RegistreUserAsync(IFormFile usersData, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var users = usersDeserializer.DeserializeUsers(
-                usersData.OpenReadStream());
-
-            await authorizationService.RegisterUserAsync(
-                new RegisterUsersRequest(Users: users), 
-                cancellationToken);
-            
-            return Ok();
-        }
-        catch (UserAlreadyExistsException ex)
-        {
-            return Conflict(
-                new
-                {
-                    ex.Message
-                });
-        }
-
     }
 
     [HttpPost("heartbeat")]

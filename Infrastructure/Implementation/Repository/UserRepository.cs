@@ -29,7 +29,20 @@ public class UserRepository(
         await dbContext.Users.AddRangeAsync(usersToAdd);
         await dbContext.SaveChangesAsync();
     }
+    public async Task AddUserAsync(User user)
+    {
+        var dbUser = dbContext.Users
+            .FirstOrDefault(x => x.Username == user.Username);
 
+        if(dbUser is not null)
+        {
+            return;
+        }
+
+        await dbContext.Users.AddAsync(user);
+        await dbContext.SaveChangesAsync();
+    }
+    
     public async Task RemoveUserAsync(int userUid)
     {
         var dbUser = await dbContext.Users.FindAsync(userUid) ?? throw new UserIsNotFoundException(userUid.ToString());

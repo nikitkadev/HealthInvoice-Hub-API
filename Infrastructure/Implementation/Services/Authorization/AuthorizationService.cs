@@ -65,38 +65,25 @@ public class AuthorizationService(
         }
     }
 
-    public async Task RegisterUserAsync(
+    public async Task RegisteUserAsync(
         RegisterUsersRequest request,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            if (request.IsEmpty)
-                return;
-
-            var users = new List<User>();
-
-            foreach (var user in request.Users)
+            await userRepository.AddUserAsync(new User()
             {
-                var organizationName = await userRepository.GetUserOrganizationName(user.OrganizationCode);
-
-                users.Add(
-                    new User
-                    {
-                        Username = user.Username,
-                        PasswordHash = passwordHasherService.HashPassword(user.Password),
-                        CodeOrg = user.OrganizationCode,
-                        OrganiztionName = organizationName,
-                        Name = user.Name,
-                        Surname = user.Surname,
-                        Patronymic = user.Patronymic,
-                        PersDataAccepted = false,
-                        Phone = user.PhoneNumber,
-                        LastActivity = DateTime.Now.AddDays(-1)
-                    });
-            }
-
-            await userRepository.AddUsersAsync(users);
+                Username = request.Username,
+                PasswordHash = passwordHasherService.HashPassword(request.Password),
+                OrganiztionName = await userRepository.GetUserOrganizationName(request.OrganizationCode),
+                CodeOrg = request.OrganizationCode,
+                LastActivity = DateTime.Now.AddDays(-1),
+                Name = request.Name,
+                Patronymic = request.Patronymic,
+                PersDataAccepted = false,
+                Phone = request.PhoneNumber,
+                Surname = request.Surname
+            });
         }
         catch (DbUpdateException ex)
         {

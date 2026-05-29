@@ -22,10 +22,16 @@ public interface IUserRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Создает запись в таблице User в базе данных.
+    /// Создает записи в таблице User в базе данных.
     /// </summary>
     /// <param name="users">Сущности User, которые будут записаны в таблицу.</param>
     Task AddUsersAsync(List<User> users);
+
+    /// <summary>
+    /// Создает запись в таблице User в базе данных.
+    /// </summary>
+    /// <param name="user">Сущность User, которая будут записана в таблицу.</param>
+    Task AddUserAsync(User user);
 
     /// <summary>
     /// Удаляет запись из таблицы Users под первичному ключу.
