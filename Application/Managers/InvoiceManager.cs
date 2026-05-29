@@ -37,7 +37,7 @@ public class InvoiceManager(
         var invoice = await CreateInvoiceModelFromZipAsync(filePath, uploader, cancellationToken);
         var normalizeResult = invoice.Normalize();
 
-        if (!normalizeResult.IsSuccess)
+        if (normalizeResult is null || !normalizeResult.IsSuccess)
         {
             logger.LogWarning(
                 "Не удалось нормализовать счет по пути {filePath}",
@@ -46,7 +46,7 @@ public class InvoiceManager(
             return;
         }
 
-        await invoiceRepository.InsertInvoiceAsync(invoice.Normalize().Value, journalType, cancellationToken);
+        await invoiceRepository.InsertInvoiceAsync(normalizeResult.Value, journalType, cancellationToken);
     }
 
     public async Task UpdateInvoiceAsync(
