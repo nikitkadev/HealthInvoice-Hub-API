@@ -1,89 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using HealthInvoice.Core.Interfaces.Repository.Rcontrol;
 using HealthInvoice.Core.Interfaces.Repository.Users;
 using HealthInvoice.Core.Common;
-using HealthInvoice.Core.Dtos.Rcontrol.Tables;
 using HealthInvoice.Core.Dtos.Auth;
 
 namespace HealthInvoice.Web.Controllers;
 
 [ApiController]
 [Route("healthinvoice/api/admin")]
-public class AdminController(
-    IRControlViewSummaryData rControlViewSummaryData,
-    IUserRepository userRepository) : ControllerBase
+public class AdminController(IUserRepository userRepository) : ControllerBase
 {
-    [HttpGet("rcontrol/medorg")]
-    public async Task<IActionResult> GetMedOrgAsync(int journalType)
-    {
-        var result = await rControlViewSummaryData.GetMedOrgsAsync((JournalType)journalType);
-
-        return Ok(result);
-    }
-
-    [HttpGet("rcontrol/periods")]
-    public async Task<IActionResult> GetMedOrgAsync(string codeMo, int journalType)
-    {
-        var result = await rControlViewSummaryData.GetPeriodsAsync(codeMo, (JournalType)journalType);
-
-        return Ok(result);
-    }
-
-    [HttpGet("rcontrol/invoices_shortly")]
-    public async Task<IActionResult> GetInvoicesShortlyRecordsAsync(
-        string codeMo, 
-        int Year, 
-        byte Month, 
-        int journalType, 
-        CancellationToken cancellationToken)
-    {
-        var result = await rControlViewSummaryData.GetInvoicesShortlyRecordsAsync(
-            codeMo, 
-            Year, 
-            Month, 
-            (JournalType)journalType, 
-            cancellationToken);
-
-        return Ok(result);
-    }
-
-    [HttpGet("rcontrol/invoice_summary")]
-    public async Task<IActionResult> GetSummaryInvoiceAsync(int schetUid, int journalType)
-    {
-        var result = await rControlViewSummaryData.GetInvoiceSummaryAsync(schetUid, (JournalType)journalType);
-        return Ok(result);
-    }
-
-    [HttpGet("rcontrol/finished_cases")]
-    public async Task<IActionResult> GetFinishedCasesAsync(int schetUid, int journalType)
-    {
-        var result = await rControlViewSummaryData.GetFinishedCasesAsync(schetUid, (JournalType)journalType);
-        return Ok(result);
-    }
-
-    [HttpGet("rcontrol/cases")]
-    public async Task<IActionResult> GetCasesAsync(int zSlUid, int journalType)
-    {
-        var result = await rControlViewSummaryData.GetCasesAsync(zSlUid, (JournalType)journalType);
-        var response = result.Select(
-            result => new CaseDto()
-            {
-                Profil = result.Profil,
-                Det = result.Det,
-                Prvs = result.Prvs,
-                StartingAt = result.Date1,
-                EndingAt = result.Date2,
-                Ds1 = result.Ds1,
-                EdCol = result.EdCol,
-                Tarif = result.Tarif,
-                SumM = result.SumM,
-                Sump = 0,
-                SmoSump = result.SmoSump
-            }).ToList();
-
-        return Ok(response);
-    }
 
     [HttpGet("users/get")]
     public async Task<IActionResult> GetAppUsersAsync()

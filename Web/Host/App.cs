@@ -28,7 +28,6 @@ public class App
         builder.Configuration.Bind(appSettings);
 
         builder.Host.UseWindowsService();
-        builder.Services.AddOpenApi();
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddSession(
             options =>

@@ -14,7 +14,6 @@ using HealthInvoice.Core.Interfaces.Repository.Users;
 using HealthInvoice.Core.Interfaces.Repository.Helpers;
 using HealthInvoice.Core.Interfaces.Repository.Reports;
 using HealthInvoice.Core.Interfaces.Repository.Invoices;
-using HealthInvoice.Core.Interfaces.Repository.Rcontrol;
 using HealthInvoice.Core.Interfaces.Repository.Journals;
 using HealthInvoice.Core.Interfaces.Services.Authorization;
 using HealthInvoice.Core.Interfaces.Services.Invoices.Parsers;
@@ -57,7 +56,6 @@ public static class DependencyRegistration
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
         services.AddScoped<ILkJournalRepository, LkJournalRepository>();
         services.AddScoped<IFkJournalRepository, FkJournalRepository>();
-        services.AddScoped<IRControlViewSummaryData, RControlViewSummaryData>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRepositoryHelper, RepositoryHelper>();
         services.AddScoped<IAuthorizationService, AuthorizationService>();
