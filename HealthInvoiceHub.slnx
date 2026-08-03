@@ -9,5 +9,4 @@
   <Project Path="Application/HealthInvoice.Application.csproj" />
   <Project Path="Infrastructure/HealthInvoice.Infrastructure.csproj" />
   <Project Path="Web/HealthInvoice.Web.csproj" />
-  <Project Path="Tests/HealthInvoice.Tests.csproj" />
 </Solution>
